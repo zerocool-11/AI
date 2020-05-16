@@ -14,7 +14,7 @@ from keras.layers import MaxPooling2D
 model = Sequential()
 
 model.add(Convolution2D(filters=32, 
-                        kernel_size=(4,4), 
+                        kernel_size=(3,3), 
                         activation='relu',
                    input_shape=(64, 64, 3)
                        ))
@@ -59,7 +59,7 @@ test_set = test_datagen.flow_from_directory(
 model.fit(
         training_set,
         steps_per_epoch=250,
-        epochs=15,
+        epochs=40,
         validation_data=test_set,
         validation_steps=800)
 
