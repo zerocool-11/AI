@@ -93,8 +93,8 @@ f=open("accuracy","w")
 f.write("{}".format(model.history.history['val_accuracy'][-1]))
 f.close()
 
-res=open("history","a")
-res.write('Test loss:'+str(scores[0]))
-res.write('\nTest accuracy:'+str(scores[1+"\n\n"])
-res.close()
+r=open("history","a")
+r.write('Test loss:'+str(scores[0]))
+r.write('\nTest accuracy:'+str(scores[1]+"\n\n"))
+r.close()
 
