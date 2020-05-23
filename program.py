@@ -35,7 +35,6 @@ x_test = x_test.reshape(x_test.shape[0], img_rows, img_cols, 1)
 # store the shape of a single image 
 input_shape = (img_rows, img_cols, 1)
 
-# change our image type to float32 data type
 x_train = x_train.astype('float32')
 x_test = x_test.astype('float32')
 
