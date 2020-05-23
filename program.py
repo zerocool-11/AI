@@ -22,7 +22,6 @@ pool=x[2]
 filter_size=32
 (x_train, y_train), (x_test, y_test)  = mnist.load_data()
 #saved the data
-# Lets store the number of rows and columns
 img_rows = x_train[0].shape[0]
 img_cols = x_train[1].shape[0]
 
