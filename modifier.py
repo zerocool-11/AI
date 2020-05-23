@@ -141,16 +141,14 @@ if x[0] > old_kernel:
     f=open("input.txt","w")
     f.write(str(x[0])+"\n")        
     f.write(str(y[1])+"\n")        
-    f.write(str(x[2])+"\n")   
-    f.write(str(x[3])+"\n")             
+    f.write(str(x[2])+"\n")               
     f.close()
     print("file updated sucessfully")
 elif x[1] >old_layer:   
     f=open("input.txt","w")
     f.write(str(y[0])+"\n")        
     f.write(str(x[1])+"\n")        
-    f.write(str(x[2])+"\n")   
-    f.write(str(x[3])+"\n")             
+    f.write(str(x[2])+"\n")             
     f.close()
 else:
     print("using old input ")   
