@@ -1,82 +1,102 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-from keras.layers import Convolution2D
+from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential
-import numpy as np 
-from keras_preprocessing.image import ImageDataGenerator
-from keras.preprocessing import image
-from keras.models import load_model
-from keras.layers import Dense
-from keras.layers import Flatten
-from keras.layers import MaxPooling2D
+from keras.layers import Dense, Dropout, Activation, Flatten
+from keras.layers import Conv2D, MaxPooling2D, ZeroPadding2D
+from keras.layers.normalization import BatchNormalization
+from keras.regularizers import l2
+from keras.datasets import mnist
+from keras.utils import np_utils
+from keras.optimizers import Adam
+import sys
 
+
+x=[]
+f=open(sys.argv[1], 'r') 
+file=f.readlines()
+for line in file:
+    x.append(int(line.strip()))
+
+kernel=x[0]
+layer=x[1]
+pool=x[2]
+filter_size=32
+(x_train, y_train), (x_test, y_test)  = mnist.load_data()
+
+# Lets store the number of rows and columns
+img_rows = x_train[0].shape[0]
+img_cols = x_train[1].shape[0]
+
+# Getting our date in the right 'shape' needed for Keras
+# We need to add a 4th dimenion to our date thereby changing our
+# Our original image shape of (60000,28,28) to (60000,28,28,1)
+x_train = x_train.reshape(x_train.shape[0], img_rows, img_cols, 1)
+x_test = x_test.reshape(x_test.shape[0], img_rows, img_cols, 1)
+
+# store the shape of a single image 
+input_shape = (img_rows, img_cols, 1)
+
+# change our image type to float32 data type
+x_train = x_train.astype('float32')
+x_test = x_test.astype('float32')
+
+# Normalize our data by changing the range from (0 to 255) to (0 to 1)
+x_train /= 255
+x_test /= 255
+
+# Now we one hot encode outputs
+y_train = np_utils.to_categorical(y_train)
+y_test = np_utils.to_categorical(y_test)
+
+num_classes = y_test.shape[1]
+num_pixels = x_train.shape[1] * x_train.shape[2]
+
+
+
+# create model
 model = Sequential()
 
-model.add(Convolution2D(filters=32,kernel_size=(3,3),activation='relu',input_shape=(64, 64, 3)))
+# 2 sets of CRP (Convolution, RELU, Pooling)
+model.add(Convolution2D(filters=filter_size,kernel_size=(kernel,kernel),activation='relu',input_shape=input_shape))
 
-model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Convolution2D(filters=32,kernel_size=(3,3),activation='relu',))
+model.add(MaxPooling2D(pool_size=(pool,pool)))
 
-model.add(MaxPooling2D(pool_size=(2, 2)))
+for i in range(1,layer):    
+    model.add(Convolution2D(filters=filter_size+(i*filter_size),kernel_size=(kernel,kernel),activation='relu',))
+    model.add(MaxPooling2D(pool_size=(pool,pool)))
 
+
+
+# Fully connected layers (w/ RELU)
 model.add(Flatten())
+model.add(Dense(units=500, activation='relu'))
+model.add(Dense(units=num_classes, activation='softmax'))
+# Softmax (for classification)
 
-model.add(Dense(units=128, activation='relu'))
-
-model.add(Dense(units=1, activation='sigmoid'))
-
+model.compile(loss = 'categorical_crossentropy',optimizer = 'adam',metrics = ['accuracy'])
+    
 print(model.summary())
 
 
-model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+# Training Parameters
+batch_size = 128
+epochs = 10
 
+history = model.fit(x_train, y_train,
+          batch_size=batch_size,
+          epochs=epochs,
+          validation_data=(x_test, y_test),
+          shuffle=True)
 
+model.save("mnist_LeNet.h5")
 
-train_datagen = ImageDataGenerator(
-        rescale=1./255,
-        shear_range=0.2,
-        zoom_range=0.2,
-        horizontal_flip=True)
-test_datagen = ImageDataGenerator(rescale=1./255)
-training_set = train_datagen.flow_from_directory(
-        'cnn_dataset/training_set/',
-        target_size=(64, 64),
-        batch_size=32,
-        class_mode='binary')
-test_set = test_datagen.flow_from_directory(
-        'cnn_dataset/test_set/',
-        target_size=(64, 64),
-        batch_size=32,
-        class_mode='binary')
-model.fit(
-        training_set,
-        steps_per_epoch=250,
-        epochs=40,
-        validation_data=test_set,
-        validation_steps=800)
+# Evaluate the performance of our trained model
+scores = model.evaluate(x_test, y_test, verbose=1)
+f=open("accuracy","w")
+f.write("{}".format(model.history.history['val_accuracy'][-1]))
+f.close()
 
-
-model.save('dog_cat.h5')
-
-test_image = image.load_img('cnn_dataset/single_prediction/cat_!.jpeg', 
-               target_size=(64,64))
-
-
-test_image = image.img_to_array(test_image)
-
-
-test_image = np.expand_dims(test_image, axis=0)
-
-result = m.predict(test_image)
-
-
-if result[0][0] == 1.0:
-    print('dog')
-else:
-    print('cat')
-
-
-r = training_set.class_indices
-
+res=open("history","a")
+res.write('Test loss:'+str(scores[0]))
+res.write('\nTest accuracy:'+str(scores[1+"\n\n"])
+res.close()
 
