@@ -39,7 +39,7 @@ input_shape = (img_rows, img_cols, 1)
 x_train = x_train.astype('float32')
 x_test = x_test.astype('float32')
 
-# Normalize our data by changing the range from (0 to 255) to (0 to 1)
+# Normalize our data by changing the range  (0 to 255) to (0 to 1)
 x_train /= 255
 x_test /= 255
 
